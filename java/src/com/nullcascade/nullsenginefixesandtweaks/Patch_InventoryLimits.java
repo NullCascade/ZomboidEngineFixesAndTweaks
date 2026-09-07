@@ -23,7 +23,7 @@ public final class Patch_InventoryLimits {
 	public static class Patch_ItemContainer_getCapacity {
 		@Patch.RuntimeType
 		public static int getCapacity(@Patch.This ItemContainer self, @Patch.SuperCall Callable<Integer> original) throws Exception {
-			if (!CapacityOptions.isEnabled()) {
+			if (!Options.isCapacityPatchEnabled()) {
 				return original.call();
 			}
 
@@ -36,7 +36,7 @@ public final class Patch_InventoryLimits {
 				return Math.min(capacity, 1000);
 			}
 
-			int maxCapacity = self.getContainingItem() != null ? CapacityOptions.getInventoryItemCapacity(capacity) : CapacityOptions.getDefaultContainerCapacity(capacity);
+			int maxCapacity = self.getContainingItem() != null ? Options.getInventoryItemCapacity(capacity) : Options.getDefaultContainerCapacity(capacity);
 			return Math.min(capacity, maxCapacity);
 		}
 	}
@@ -45,12 +45,12 @@ public final class Patch_InventoryLimits {
 	public static class Patch_InventoryContainer_getCapacity {
 		@Patch.RuntimeType
 		public static int getCapacity(@Patch.This InventoryContainer self, @Patch.SuperCall Callable<Integer> original) throws Exception {
-			if (!CapacityOptions.isEnabled()) {
+			if (!Options.isCapacityPatchEnabled()) {
 				return original.call();
 			}
 
 			int capacity = self.getInventory().getCapacity();
-			int limit = CapacityOptions.getInventoryItemCapacity(capacity);
+			int limit = Options.getInventoryItemCapacity(capacity);
 			if (capacity > limit - self.getActualWeight()) {
 				capacity = (int)(limit - self.getActualWeight());
 			}
@@ -63,12 +63,12 @@ public final class Patch_InventoryLimits {
 	public static class Patch_InventoryContainer_getEffectiveCapacity {
 		@Patch.RuntimeType
 		public static int getEffectiveCapacity(@Patch.This InventoryContainer self, @Patch.Argument(0) IsoGameCharacter chr, @Patch.SuperCall Callable<Integer> original) throws Exception {
-			if (!CapacityOptions.isEnabled()) {
+			if (!Options.isCapacityPatchEnabled()) {
 				return original.call();
 			}
 
 			int capacity = self.getInventory().getEffectiveCapacity(chr);
-			int limit = CapacityOptions.getInventoryItemCapacity(capacity);
+			int limit = Options.getInventoryItemCapacity(capacity);
 			if (capacity > limit - self.getActualWeight()) {
 				capacity = (int)(limit - self.getActualWeight());
 			}
