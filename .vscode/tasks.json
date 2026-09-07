@@ -3,10 +3,11 @@
   "tasks": [
     {
       "label": "Build JARs",
-      "type": "shell",
-      "command": "gradle",
+      "type": "process",
+      "command": "C:\\Programs\\gradle\\bin\\gradle.bat",
       "args": [
-        "jar"
+        "-PpzVersion=${input:pzVersion}",
+        "packageModJar"
       ],
       "options": {
         "cwd": "${workspaceFolder}/java"
@@ -16,6 +17,14 @@
         "isDefault": true
       },
       "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "pzVersion",
+      "type": "promptString",
+      "description": "Project Zomboid version directory",
+      "default": "42.20"
     }
   ]
 }

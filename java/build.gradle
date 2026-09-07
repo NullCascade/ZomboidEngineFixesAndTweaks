@@ -3,6 +3,11 @@ plugins {
 }
 
 def gameDir = findProperty('gameDir') ?: 'C:/Games/Steam/steamapps/common/ProjectZomboid'
+def pzVersion = findProperty('pzVersion') ?: '42.20'
+
+if (!(pzVersion ==~ /\d+(\.\d+)+/)) {
+    throw new GradleException("pzVersion must be a numeric Project Zomboid version directory, got: ${pzVersion}")
+}
 
 dependencies {
     compileOnly files("${gameDir}/ZombieBuddy.jar")
@@ -26,4 +31,10 @@ sourceSets {
 
 jar {
     archiveBaseName.set('NullsEngineFixesAndTweaks')
+}
+
+tasks.register('packageModJar', Copy) {
+    dependsOn tasks.named('jar')
+    from tasks.named('jar')
+    into file("../${pzVersion}/media/java")
 }
