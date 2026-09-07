@@ -1,11 +1,11 @@
 {
-	"Sandbox_NullsEngineFixesAndTweaks": "Null's Engine Fixes and Tweaks",
-	"Sandbox_NullsEngineFixesAndTweaks_EnableCapacityPatch": "Patch: Dehardcode inventory capacity ceilings",
-	"Sandbox_NullsEngineFixesAndTweaks_EnableCapacityPatch_tooltip": "Enable configurable replacements for the vanilla 50 and 100 capacity ceilings.",
-	"Sandbox_NullsEngineFixesAndTweaks_EnableWeaponLevelPatch": "Patch: Correct weapon level calculation",
-	"Sandbox_NullsEngineFixesAndTweaks_EnableWeaponLevelPatch_tooltip": "Enable the fix for non-Axe weapons reporting one level below the corresponding weapon skill.",
-	"Sandbox_NullsEngineFixesAndTweaks_InventoryItemCapacity": "Inventory item capacity ceiling",
-	"Sandbox_NullsEngineFixesAndTweaks_InventoryItemCapacity_tooltip": "Replacement for the vanilla 50 capacity ceiling used by inventory items such as bags and character.",
-	"Sandbox_NullsEngineFixesAndTweaks_DefaultContainerCapacity": "Default container capacity ceiling",
-	"Sandbox_NullsEngineFixesAndTweaks_DefaultContainerCapacity_tooltip": "Replacement for the vanilla 100 capacity ceiling used by other containers."
+	"Sandbox_EngineFixesAndTweaks": "Engine Fixes and Tweaks",
+	"Sandbox_EngineFixesAndTweaks_EnableCapacityPatch": "Patch: Dehardcode inventory capacity ceilings",
+	"Sandbox_EngineFixesAndTweaks_EnableCapacityPatch_tooltip": "Enable configurable replacements for the vanilla 50 and 100 capacity ceilings.",
+	"Sandbox_EngineFixesAndTweaks_EnableWeaponLevelPatch": "Patch: Correct weapon level calculation",
+	"Sandbox_EngineFixesAndTweaks_EnableWeaponLevelPatch_tooltip": "Enable the fix for non-Axe weapons reporting one level below the corresponding weapon skill.",
+	"Sandbox_EngineFixesAndTweaks_InventoryItemCapacity": "Inventory item capacity ceiling",
+	"Sandbox_EngineFixesAndTweaks_InventoryItemCapacity_tooltip": "Replacement for the vanilla 50 capacity ceiling used by inventory items such as bags and character.",
+	"Sandbox_EngineFixesAndTweaks_DefaultContainerCapacity": "Default container capacity ceiling",
+	"Sandbox_EngineFixesAndTweaks_DefaultContainerCapacity_tooltip": "Replacement for the vanilla 100 capacity ceiling used by other containers."
 }

@@ -30,7 +30,7 @@ sourceSets {
 }
 
 jar {
-    archiveBaseName.set('NullsEngineFixesAndTweaks')
+    archiveBaseName.set('EngineFixesAndTweaks')
 }
 
 tasks.register('packageModJar', Copy) {

@@ -1,4 +1,4 @@
-package com.nullcascade.nullsenginefixesandtweaks;
+package com.enginefixesandtweaks;
 
 import me.zed_0xff.zombie_buddy.Patch;
 import zombie.characters.IsoGameCharacter;

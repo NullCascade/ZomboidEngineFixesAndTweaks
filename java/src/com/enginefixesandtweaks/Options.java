@@ -1,12 +1,12 @@
-package com.nullcascade.nullsenginefixesandtweaks;
+package com.enginefixesandtweaks;
 
 import zombie.SandboxOptions;
 
 public final class Options {
-    private static final String ENABLE_CAPACITY_PATCH = "NullsEngineFixesAndTweaks.EnableCapacityPatch";
-    private static final String ENABLE_WEAPON_LEVEL_PATCH = "NullsEngineFixesAndTweaks.EnableWeaponLevelPatch";
-    private static final String INVENTORY_ITEM_CAPACITY = "NullsEngineFixesAndTweaks.InventoryItemCapacity";
-    private static final String DEFAULT_CONTAINER_CAPACITY = "NullsEngineFixesAndTweaks.DefaultContainerCapacity";
+    private static final String ENABLE_CAPACITY_PATCH = "EngineFixesAndTweaks.EnableCapacityPatch";
+    private static final String ENABLE_WEAPON_LEVEL_PATCH = "EngineFixesAndTweaks.EnableWeaponLevelPatch";
+    private static final String INVENTORY_ITEM_CAPACITY = "EngineFixesAndTweaks.InventoryItemCapacity";
+    private static final String DEFAULT_CONTAINER_CAPACITY = "EngineFixesAndTweaks.DefaultContainerCapacity";
 
     private Options() {
     }

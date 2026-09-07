@@ -1,25 +1,25 @@
 VERSION = 1,
 
-option NullsEngineFixesAndTweaks.EnableCapacityPatch
+option EngineFixesAndTweaks.EnableCapacityPatch
 {
 	type = boolean, default = true,
-	page = NullsEngineFixesAndTweaks, translation = NullsEngineFixesAndTweaks_EnableCapacityPatch,
+	page = EngineFixesAndTweaks, translation = EngineFixesAndTweaks_EnableCapacityPatch,
 }
 
-option NullsEngineFixesAndTweaks.EnableWeaponLevelPatch
+option EngineFixesAndTweaks.EnableWeaponLevelPatch
 {
 	type = boolean, default = true,
-	page = NullsEngineFixesAndTweaks, translation = NullsEngineFixesAndTweaks_EnableWeaponLevelPatch,
+	page = EngineFixesAndTweaks, translation = EngineFixesAndTweaks_EnableWeaponLevelPatch,
 }
 
-option NullsEngineFixesAndTweaks.InventoryItemCapacity
+option EngineFixesAndTweaks.InventoryItemCapacity
 {
 	type = integer, min = 1, max = 100000, default = 50,
-	page = NullsEngineFixesAndTweaks, translation = NullsEngineFixesAndTweaks_InventoryItemCapacity,
+	page = EngineFixesAndTweaks, translation = EngineFixesAndTweaks_InventoryItemCapacity,
 }
 
-option NullsEngineFixesAndTweaks.DefaultContainerCapacity
+option EngineFixesAndTweaks.DefaultContainerCapacity
 {
 	type = integer, min = 1, max = 100000, default = 100,
-	page = NullsEngineFixesAndTweaks, translation = NullsEngineFixesAndTweaks_DefaultContainerCapacity,
+	page = EngineFixesAndTweaks, translation = EngineFixesAndTweaks_DefaultContainerCapacity,
 }
