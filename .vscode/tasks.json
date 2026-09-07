@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build JARs",
+      "type": "shell",
+      "command": "gradle",
+      "args": [
+        "jar"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/java"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

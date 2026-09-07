@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+def gameDir = findProperty('gameDir') ?: 'C:/Games/Steam/steamapps/common/ProjectZomboid'
+
+dependencies {
+    compileOnly files("${gameDir}/ZombieBuddy.jar")
+    compileOnly files("${gameDir}/projectzomboid.jar")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    // This template has no downloaded runtime dependencies.
+}
+
+sourceSets {
+    main {
+        java.srcDirs = ['src']
+    }
+}
+
+jar {
+    archiveBaseName.set('NullsEngineFixesAndTweaks')
+}
