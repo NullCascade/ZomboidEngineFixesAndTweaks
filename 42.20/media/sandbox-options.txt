@@ -1,0 +1,19 @@
+VERSION = 1,
+
+option NullsEngineFixesAndTweaks.EnableCapacityPatch
+{
+	type = boolean, default = true,
+	page = NullsEngineFixesAndTweaks, translation = NullsEngineFixesAndTweaks_EnableCapacityPatch,
+}
+
+option NullsEngineFixesAndTweaks.InventoryItemCapacity
+{
+	type = integer, min = 1, max = 100000, default = 50,
+	page = NullsEngineFixesAndTweaks, translation = NullsEngineFixesAndTweaks_InventoryItemCapacity,
+}
+
+option NullsEngineFixesAndTweaks.DefaultContainerCapacity
+{
+	type = integer, min = 1, max = 100000, default = 100,
+	page = NullsEngineFixesAndTweaks, translation = NullsEngineFixesAndTweaks_DefaultContainerCapacity,
+}
