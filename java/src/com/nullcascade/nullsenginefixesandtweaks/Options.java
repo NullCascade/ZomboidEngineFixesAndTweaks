@@ -4,6 +4,7 @@ import zombie.SandboxOptions;
 
 public final class Options {
     private static final String ENABLE_CAPACITY_PATCH = "NullsEngineFixesAndTweaks.EnableCapacityPatch";
+    private static final String ENABLE_WEAPON_LEVEL_PATCH = "NullsEngineFixesAndTweaks.EnableWeaponLevelPatch";
     private static final String INVENTORY_ITEM_CAPACITY = "NullsEngineFixesAndTweaks.InventoryItemCapacity";
     private static final String DEFAULT_CONTAINER_CAPACITY = "NullsEngineFixesAndTweaks.DefaultContainerCapacity";
 
@@ -12,6 +13,10 @@ public final class Options {
 
     public static boolean isCapacityPatchEnabled() {
         return getBoolean(ENABLE_CAPACITY_PATCH);
+    }
+
+    public static boolean isWeaponLevelPatchEnabled() {
+        return getBoolean(ENABLE_WEAPON_LEVEL_PATCH);
     }
 
     public static int getInventoryItemCapacity(int fallback) {

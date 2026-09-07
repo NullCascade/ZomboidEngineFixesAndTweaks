@@ -6,6 +6,12 @@ option NullsEngineFixesAndTweaks.EnableCapacityPatch
 	page = NullsEngineFixesAndTweaks, translation = NullsEngineFixesAndTweaks_EnableCapacityPatch,
 }
 
+option NullsEngineFixesAndTweaks.EnableWeaponLevelPatch
+{
+	type = boolean, default = true,
+	page = NullsEngineFixesAndTweaks, translation = NullsEngineFixesAndTweaks_EnableWeaponLevelPatch,
+}
+
 option NullsEngineFixesAndTweaks.InventoryItemCapacity
 {
 	type = integer, min = 1, max = 100000, default = 50,
