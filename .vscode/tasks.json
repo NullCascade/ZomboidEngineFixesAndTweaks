@@ -17,6 +17,21 @@
         "isDefault": true
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Package for Workshop",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$source = '${workspaceFolder}'; $workshopRoot = Join-Path $env:USERPROFILE 'Zomboid\\Workshop\\EngineFixesAndTweaks'; $destination = Join-Path $workshopRoot 'Contents\\mods\\EngineFixesAndTweaks'; if (Test-Path -LiteralPath $destination) { Remove-Item -LiteralPath $destination -Recurse -Force }; New-Item -ItemType Directory -Path $destination -Force | Out-Null; Get-ChildItem -LiteralPath $source -Force | Where-Object { $_.Name -notin @('.git', 'java', '.vscode', '.gitignore', 'workshop.txt', 'preview.png') } | Copy-Item -Destination $destination -Recurse -Force; $workshopMetadata = Join-Path $source 'workshop.txt'; if (Test-Path -LiteralPath $workshopMetadata) { Copy-Item -LiteralPath $workshopMetadata -Destination (Join-Path $workshopRoot 'workshop.txt') -Force }; $preview = Join-Path $source 'preview.png'; if (Test-Path -LiteralPath $preview) { Copy-Item -LiteralPath $preview -Destination (Join-Path $workshopRoot 'preview.png') -Force }"
+      ],
+      "dependsOn": "Build JARs",
+      "dependsOrder": "sequence",
+      "problemMatcher": []
     }
   ],
   "inputs": [

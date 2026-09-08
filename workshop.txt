@@ -1,0 +1,14 @@
+version=1
+id=3798245486
+title=Null's Engine Fixes and Tweaks
+description=A couple of work-in-progress fixes and tweaks.
+description=
+description=- Dehardcoded inventory limits: Use sandbox settings to change the previously hardcoded limits of 50 and 100.
+description=- Fixed weapon level calculations for non-axes: Fixes a likely bug in weapon level calculations that causes most weapon types to be treated as one level lower. Can be enabled/disabled in sandbox settings.
+description=- Fixed animation loading when reloading lua/connecting to servers: Attempts to fix the meatballing issue with the Horses mod, as well as other animation files failing to load in multiplayer sessions.
+description=
+description=Source code available on GitHub: NullCascade/ZomboidEngineFixesAndTweaks
+description=
+description=Source code available on GitHub: NullCascade/ZomboidEngineFixesAndTweaks
+tags=Build 42;WIP
+visibility=unlisted
