@@ -1,4 +1,4 @@
-version=1
+version=1.1
 id=3798245486
 title=Null's Engine Fixes and Tweaks
 description=A couple of work-in-progress fixes and tweaks.
@@ -8,7 +8,5 @@ description=- Fixed weapon level calculations for non-axes: Fixes a likely bug i
 description=- Fixed animation loading when reloading lua/connecting to servers: Attempts to fix the meatballing issue with the Horses mod, as well as other animation files failing to load in multiplayer sessions.
 description=
 description=Source code available on GitHub: NullCascade/ZomboidEngineFixesAndTweaks
-description=
-description=Source code available on GitHub: NullCascade/ZomboidEngineFixesAndTweaks
 tags=Build 42;WIP
-visibility=unlisted
+visibility=public
