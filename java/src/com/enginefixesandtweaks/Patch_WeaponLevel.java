@@ -13,9 +13,8 @@ import java.util.concurrent.Callable;
 /**
  * Fix the vanilla weapon-level calculation for non-Axe melee weapons.
  *
- * Vanilla starts the accumulator at -1 and only assigns the Axe skill
- * directly.  Every other supported weapon category therefore reports one
- * level below the character's actual perk level.
+ * Vanilla starts the accumulator at -1 and only assigns the Axe skill directly.  Every other supported weapon
+ * category therefore reports one level below the character's actual perk level.
  */
 public final class Patch_WeaponLevel {
 	private Patch_WeaponLevel() {
@@ -33,7 +32,7 @@ public final class Patch_WeaponLevel {
 
 		int level = 0;
 		if (weapon.isOfWeaponCategory(WeaponCategory.AXE)) {
-			level = character.getPerkLevel(PerkFactory.Perks.Axe);
+			level += character.getPerkLevel(PerkFactory.Perks.Axe);
 		}
 
 		if (weapon.isOfWeaponCategory(WeaponCategory.SPEAR)) {
@@ -59,35 +58,36 @@ public final class Patch_WeaponLevel {
 		return Math.min(level, 10);
 	}
 
-	@Patch(className = "zombie.characters.IsoGameCharacter", methodName = "getWeaponLevel", isAdvice = false)
+	// I don't see a way to replace functions with variable arguments using this API, so we'll have to just consume all
+	// versions of the function.
+	@Patch(className = "zombie.characters.IsoGameCharacter", methodName = "getWeaponLevel")
 	public static final class Patch_IsoGameCharacter_getWeaponLevel {
-		@Patch.RuntimeType
-		public static int getWeaponLevel(@Patch.This IsoGameCharacter self, @Patch.Argument(0) HandWeapon weapon, @Patch.SuperCall Callable<Integer> original) throws Exception {
-            if (!Options.isWeaponLevelPatchEnabled()) {
-				return original.call();
+		@Patch.OnExit
+		public static void exit(@Patch.This IsoGameCharacter self, @Patch.AllArguments Object[] arguments, @Patch.Return(readOnly = false) int result) {
+			if (!Options.isWeaponLevelPatchEnabled()) {
+				return;
 			}
 
-			if (weapon == null) {
-				weapon = self.getPrimaryHandItem() instanceof HandWeapon handWeapon ? handWeapon : null;
+			HandWeapon weapon = (arguments.length > 0 && arguments[0] instanceof HandWeapon handWeapon) ? handWeapon : null;
+			if (weapon == null && self.getPrimaryHandItem() instanceof HandWeapon handWeapon) {
+				weapon = handWeapon;
 			}
 
-			return Patch_WeaponLevel.getWeaponLevel(self, weapon);
+			result = Patch_WeaponLevel.getWeaponLevel(self, weapon);
 		}
 	}
 
-	@Patch(className = "zombie.inventory.InventoryItem", methodName = "getWeaponLevel", isAdvice = false)
+	@Patch(className = "zombie.inventory.InventoryItem", methodName = "getWeaponLevel")
 	public static final class Patch_InventoryItem_getWeaponLevel {
-		@Patch.RuntimeType
-		public static int getWeaponLevel(@Patch.This InventoryItem self, @Patch.SuperCall Callable<Integer> original) throws Exception {
-            if (!Options.isWeaponLevelPatchEnabled()) {
-				return original.call();
+		@Patch.OnExit
+		public static void exit(@Patch.This InventoryItem self, @Patch.Return(readOnly = false) int result) {
+			if (!Options.isWeaponLevelPatchEnabled()) {
+				return;
 			}
 
-			if (!self.isEquipped() || !(self instanceof HandWeapon weapon)) {
-				return 0;
+			if (self.isEquipped() && self instanceof HandWeapon weapon) {
+				result = Patch_WeaponLevel.getWeaponLevel(self.getUser(), weapon);
 			}
-
-			return Patch_WeaponLevel.getWeaponLevel(self.getUser(), weapon);
 		}
 	}
 }
