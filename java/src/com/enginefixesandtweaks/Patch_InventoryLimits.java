@@ -5,8 +5,6 @@ import zombie.characters.IsoGameCharacter;
 import zombie.inventory.ItemContainer;
 import zombie.inventory.types.InventoryContainer;
 
-import java.util.concurrent.Callable;
-
 /**
  * Patch: Expand Inventory Limits
  * 
@@ -16,15 +14,18 @@ import java.util.concurrent.Callable;
  */
 
 public final class Patch_InventoryLimits {
+	private static final int VANILLA_INVENTORY_ITEM_LIMIT = 50;
+	private static final int VANILLA_DEFAULT_CONTAINER_LIMIT = 100;
+
 	private Patch_InventoryLimits() {
 	}
 
-	@Patch(className = "zombie.inventory.ItemContainer", methodName = "getCapacity", isAdvice = false)
+	@Patch(className = "zombie.inventory.ItemContainer", methodName = "getCapacity")
 	public static class Patch_ItemContainer_getCapacity {
-		@Patch.RuntimeType
-		public static int getCapacity(@Patch.This ItemContainer self, @Patch.SuperCall Callable<Integer> original) throws Exception {
+		@Patch.OnExit
+		public static void exit(@Patch.This ItemContainer self, @Patch.Return(readOnly = false) int result) {
 			if (!Options.isCapacityPatchEnabled()) {
-				return original.call();
+				return;
 			}
 
 			int capacity = self.capacity;
@@ -33,20 +34,28 @@ public final class Patch_InventoryLimits {
 			}
 
 			if (self.getVehiclePart() != null) {
-				return Math.min(capacity, 1000);
+				result = Math.min(capacity, 1000);
+				return;
 			}
 
-			int maxCapacity = self.getContainingItem() != null ? Options.getInventoryItemCapacity(capacity) : Options.getDefaultContainerCapacity(capacity);
-			return Math.min(capacity, maxCapacity);
+			if (self.parent instanceof IsoGameCharacter) {
+				result = Math.max(capacity, Options.getInventoryItemCapacity(VANILLA_INVENTORY_ITEM_LIMIT));
+				return;
+			}
+
+			boolean inventoryItem = self.getContainingItem() != null;
+			int vanillaLimit = inventoryItem ? VANILLA_INVENTORY_ITEM_LIMIT : VANILLA_DEFAULT_CONTAINER_LIMIT;
+			int maxCapacity = inventoryItem ? Options.getInventoryItemCapacity(vanillaLimit) : Options.getDefaultContainerCapacity(vanillaLimit);
+			result = capacity >= vanillaLimit ? Math.min(capacity, maxCapacity) : capacity;
 		}
 	}
 
-	@Patch(className = "zombie.inventory.types.InventoryContainer", methodName = "getCapacity", isAdvice = false)
+	@Patch(className = "zombie.inventory.types.InventoryContainer", methodName = "getCapacity")
 	public static class Patch_InventoryContainer_getCapacity {
-		@Patch.RuntimeType
-		public static int getCapacity(@Patch.This InventoryContainer self, @Patch.SuperCall Callable<Integer> original) throws Exception {
+		@Patch.OnExit
+		public static void exit(@Patch.This InventoryContainer self, @Patch.Return(readOnly = false) int result) {
 			if (!Options.isCapacityPatchEnabled()) {
-				return original.call();
+				return;
 			}
 
 			int capacity = self.getInventory().getCapacity();
@@ -55,16 +64,16 @@ public final class Patch_InventoryLimits {
 				capacity = (int)(limit - self.getActualWeight());
 			}
 
-			return capacity;
+			result = capacity;
 		}
 	}
 
-	@Patch(className = "zombie.inventory.types.InventoryContainer", methodName = "getEffectiveCapacity", isAdvice = false)
+	@Patch(className = "zombie.inventory.types.InventoryContainer", methodName = "getEffectiveCapacity")
 	public static class Patch_InventoryContainer_getEffectiveCapacity {
-		@Patch.RuntimeType
-		public static int getEffectiveCapacity(@Patch.This InventoryContainer self, @Patch.Argument(0) IsoGameCharacter chr, @Patch.SuperCall Callable<Integer> original) throws Exception {
+		@Patch.OnExit
+		public static void exit(@Patch.This InventoryContainer self, @Patch.Argument(0) IsoGameCharacter chr, @Patch.Return(readOnly = false) int result) {
 			if (!Options.isCapacityPatchEnabled()) {
-				return original.call();
+				return;
 			}
 
 			int capacity = self.getInventory().getEffectiveCapacity(chr);
@@ -73,7 +82,7 @@ public final class Patch_InventoryLimits {
 				capacity = (int)(limit - self.getActualWeight());
 			}
 
-			return capacity;
+			result = capacity;
 		}
 	}
 }
