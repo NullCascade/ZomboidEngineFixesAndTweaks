@@ -1,15 +1,15 @@
 VERSION = 1,
 
-option EngineFixesAndTweaks.EnableCapacityPatch
-{
-	type = boolean, default = true,
-	page = EngineFixesAndTweaks, translation = EngineFixesAndTweaks_EnableCapacityPatch,
-}
-
 option EngineFixesAndTweaks.EnableWeaponLevelPatch
 {
 	type = boolean, default = true,
 	page = EngineFixesAndTweaks, translation = EngineFixesAndTweaks_EnableWeaponLevelPatch,
+}
+
+option EngineFixesAndTweaks.EnableCapacityPatch
+{
+	type = boolean, default = true,
+	page = EngineFixesAndTweaks, translation = EngineFixesAndTweaks_EnableCapacityPatch,
 }
 
 option EngineFixesAndTweaks.InventoryItemCapacity
