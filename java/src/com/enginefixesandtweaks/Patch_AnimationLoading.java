@@ -5,13 +5,12 @@ import zombie.ZomboidFileSystem;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Keeps ZomboidFileSystem prefix validation safe while mods and animation assets are being reloaded.
@@ -21,9 +20,13 @@ import java.util.concurrent.Callable;
  * lifecycle operations are serialized, and validation only reads the immutable copy.
  */
 public final class Patch_AnimationLoading {
-	private static final Object FILE_SYSTEM_LOCK = new Object();
-	private static final ThreadLocal<Integer> LOAD_MODS_DEPTH = ThreadLocal.withInitial(() -> 0);
-	private static volatile Set<String> activeFilePaths = Set.of();
+	/*
+	 * Advice is inlined into zombie.ZomboidFileSystem. These members therefore need to be public so the injected
+	 * bytecode can access them at runtime.
+	 */
+	public static final ReentrantLock FILE_SYSTEM_LOCK = new ReentrantLock();
+	public static final ThreadLocal<Integer> LOAD_MODS_DEPTH = ThreadLocal.withInitial(() -> 0);
+	public static volatile Set<String> activeFilePaths = Set.of();
 
 	private Patch_AnimationLoading() {
 	}
@@ -32,31 +35,39 @@ public final class Patch_AnimationLoading {
 	 * Serialize the vanilla folder scan. Without this, two lazy-prefix
 	 * evaluations can observe modFolders while another call is still filling it.
 	 */
-	@Patch(className = "zombie.ZomboidFileSystem", methodName = "getAllModFolders", isAdvice = false)
+	@Patch(className = "zombie.ZomboidFileSystem", methodName = "getAllModFolders")
 	public static final class Patch_ZomboidFileSystem_getAllModFolders {
-		@Patch.RuntimeType
-		public static void getAllModFolders(@Patch.This ZomboidFileSystem self, @Patch.Argument(0) List<String> output, @Patch.SuperCall Runnable original) {
-			synchronized (FILE_SYSTEM_LOCK) {
-				original.run();
-			}
+		@Patch.OnEnter
+		public static void enter() {
+			FILE_SYSTEM_LOCK.lock();
+		}
+
+		@Patch.OnExit(onThrowable = Throwable.class)
+		public static void exit() {
+			FILE_SYSTEM_LOCK.unlock();
 		}
 	}
 
 	/**
 	 * Keep the active-file snapshot in step with the base files loaded by init.
 	 */
-	@Patch(className = "zombie.ZomboidFileSystem", methodName = "init", isAdvice = false)
+	@Patch(className = "zombie.ZomboidFileSystem", methodName = "init")
 	public static final class Patch_ZomboidFileSystem_init {
-		@Patch.RuntimeType
-		public static void init(@Patch.This ZomboidFileSystem self, @Patch.SuperCall Callable<?> original) throws Exception {
-			synchronized (FILE_SYSTEM_LOCK) {
-				try {
-					original.call();
+		@Patch.OnEnter
+		public static void enter() {
+			FILE_SYSTEM_LOCK.lock();
+		}
+
+		@Patch.OnExit(onThrowable = Throwable.class)
+		public static void exit(@Patch.This ZomboidFileSystem self, @Patch.Thrown Throwable thrown) {
+			try {
+				if (thrown == null) {
 					publishActiveFileSnapshot(self);
-				} catch (Exception exception) {
+				} else {
 					activeFilePaths = Set.of();
-					throw exception;
 				}
+			} finally {
+				FILE_SYSTEM_LOCK.unlock();
 			}
 		}
 	}
@@ -64,74 +75,89 @@ public final class Patch_AnimationLoading {
 	/**
 	 * Never leave paths from the previous reload generation in the fallback.
 	 */
-	@Patch(className = "zombie.ZomboidFileSystem", methodName = "Reset", isAdvice = false)
+	@Patch(className = "zombie.ZomboidFileSystem", methodName = "Reset")
 	public static final class Patch_ZomboidFileSystem_Reset {
-		@Patch.RuntimeType
-		public static void reset(@Patch.This ZomboidFileSystem self, @Patch.SuperCall Runnable original) {
-			synchronized (FILE_SYSTEM_LOCK) {
-				try {
-					original.run();
-				} finally {
-					activeFilePaths = Set.of();
-				}
+		@Patch.OnEnter
+		public static void enter() {
+			FILE_SYSTEM_LOCK.lock();
+		}
+
+		@Patch.OnExit(onThrowable = Throwable.class)
+		public static void exit() {
+			try {
+				activeFilePaths = Set.of();
+			} finally {
+				FILE_SYSTEM_LOCK.unlock();
 			}
 		}
 	}
 
 	/**
-	 * Publish each completed mod load. This also protects the snapshot copy from concurrent mutation of the game's HashMap.
+	 * Keep individual mod loads serialized. The snapshot is intentionally not copied here: loadMods invokes this
+	 * method once per mod, so copying the entire activeFileMap at this point would turn startup into an O(mods * files)
+	 * operation. The outer loadMods advice publishes one snapshot after the complete batch instead.
 	 */
-	@Patch(className = "zombie.ZomboidFileSystem", methodName = "loadMod", isAdvice = false)
+	@Patch(className = "zombie.ZomboidFileSystem", methodName = "loadMod")
 	public static final class Patch_ZomboidFileSystem_loadMod {
-		@Patch.RuntimeType
-		public static void loadMod(@Patch.This ZomboidFileSystem self, @Patch.Argument(0) String modId, @Patch.SuperCall Runnable original) {
-			synchronized (FILE_SYSTEM_LOCK) {
-				original.run();
-				publishActiveFileSnapshot(self);
-				if (LOAD_MODS_DEPTH.get() == 0) {
+		@Patch.OnEnter
+		public static void enter() {
+			FILE_SYSTEM_LOCK.lock();
+		}
+
+		@Patch.OnExit(onThrowable = Throwable.class)
+		public static void exit(@Patch.This ZomboidFileSystem self, @Patch.Thrown Throwable thrown) {
+			try {
+				if (thrown == null && LOAD_MODS_DEPTH.get() == 0) {
+					// Support callers that invoke loadMod directly outside the normal loadMods batch.
 					refreshAfterModsLoaded(self);
 				}
+			} finally {
+				FILE_SYSTEM_LOCK.unlock();
 			}
 		}
 	}
 
 	/**
-	 * Rebuild the vanilla lazy-prefix input after the complete loadMods pass. The delegation signature matches both
-	 * loadMods overloads; the depth guard avoids doing this twice when the String overload calls the ArrayList one.
+	 * Rebuild the vanilla lazy-prefix input after the complete loadMods pass. The advice matches both loadMods
+	 * overloads; the depth guard avoids doing this twice when the String overload calls the ArrayList one.
 	 */
-	@Patch(className = "zombie.ZomboidFileSystem", methodName = "loadMods", isAdvice = false)
+	@Patch(className = "zombie.ZomboidFileSystem", methodName = "loadMods")
 	public static final class Patch_ZomboidFileSystem_loadMods {
-		@Patch.RuntimeType
-		public static void loadMods(@Patch.This ZomboidFileSystem self, @Patch.SuperCall Runnable original) {
-			synchronized (FILE_SYSTEM_LOCK) {
-				int depth = LOAD_MODS_DEPTH.get();
-				LOAD_MODS_DEPTH.set(depth + 1);
-				boolean succeeded = false;
-				try {
-					original.run();
-					succeeded = true;
-				} finally {
-					LOAD_MODS_DEPTH.set(depth);
-				}
+		@Patch.OnEnter
+		public static void enter() {
+			FILE_SYSTEM_LOCK.lock();
+			int depth = LOAD_MODS_DEPTH.get();
+			LOAD_MODS_DEPTH.set(depth + 1);
+		}
 
-				if (succeeded && depth == 0) {
+		@Patch.OnExit(onThrowable = Throwable.class)
+		public static void exit(@Patch.This ZomboidFileSystem self, @Patch.Thrown Throwable thrown) {
+			try {
+				int depth = LOAD_MODS_DEPTH.get() - 1;
+				LOAD_MODS_DEPTH.set(depth);
+				if (thrown == null && depth == 0) {
 					refreshAfterModsLoaded(self);
 				}
+			} finally {
+				FILE_SYSTEM_LOCK.unlock();
 			}
 		}
 	}
 
 	/**
-	 * Keep vanilla's reset operation serialized with validation and folder scans. The vanilla method resets allowedPrefixes
-	 * itself.
+	 * Keep vanilla's reset operation serialized with validation and folder scans. The vanilla method resets
+	 * allowedPrefixes itself.
 	 */
-	@Patch(className = "zombie.ZomboidFileSystem", methodName = "resetModFolders", isAdvice = false)
+	@Patch(className = "zombie.ZomboidFileSystem", methodName = "resetModFolders")
 	public static final class Patch_ZomboidFileSystem_resetModFolders {
-		@Patch.RuntimeType
-		public static void resetModFolders(@Patch.This ZomboidFileSystem self, @Patch.SuperCall Runnable original) {
-			synchronized (FILE_SYSTEM_LOCK) {
-				original.run();
-			}
+		@Patch.OnEnter
+		public static void enter() {
+			FILE_SYSTEM_LOCK.lock();
+		}
+
+		@Patch.OnExit(onThrowable = Throwable.class)
+		public static void exit() {
+			FILE_SYSTEM_LOCK.unlock();
 		}
 	}
 
@@ -139,27 +165,24 @@ public final class Patch_AnimationLoading {
 	 * Vanilla remains the first authority. The fallback is only for an exact active-file path when the vanilla lazy
 	 * prefix list rejected that path.
 	 */
-	@Patch(className = "zombie.ZomboidFileSystem", methodName = "validatePrefix", isAdvice = false)
+	@Patch(className = "zombie.ZomboidFileSystem", methodName = "validatePrefix")
 	public static final class Patch_ZomboidFileSystem_validatePrefix {
-		@Patch.RuntimeType
-		public static void validatePrefix(@Patch.This ZomboidFileSystem self, @Patch.Argument(0) String input, @Patch.SuperCall Callable<?> original) throws Exception {
-			try {
-				synchronized (FILE_SYSTEM_LOCK) {
-					original.call();
-				}
-			} catch (IllegalArgumentException exception) {
-				if (isInvalidPrefixException(exception) && isRegisteredActiveFile(input)) {
-					return;
-				}
-
-				throw exception;
+		@Patch.OnExit(onThrowable = Throwable.class)
+		public static void exit(@Patch.Argument(0) String input, @Patch.Thrown(readOnly = false) Throwable thrown) {
+			if (thrown instanceof IllegalArgumentException exception && isInvalidPrefixException(exception) && isRegisteredActiveFile(input)) {
+				thrown = null;
 			}
 		}
 	}
 
-	private static void publishActiveFileSnapshot(ZomboidFileSystem fileSystem) {
+	public static void publishActiveFileSnapshot(ZomboidFileSystem fileSystem) {
 		Set<String> paths = new HashSet<>();
-		for (String activePath : fileSystem.activeFileMap.values()) {
+		for (Map.Entry<String, String> entry : fileSystem.activeFileMap.entrySet()) {
+			if (!isAnimationPath(entry.getKey())) {
+				continue;
+			}
+
+			String activePath = entry.getValue();
 			String normalizedPath = normalize(activePath);
 			if (normalizedPath != null) {
 				paths.add(normalizedPath);
@@ -169,25 +192,18 @@ public final class Patch_AnimationLoading {
 		activeFilePaths = Collections.unmodifiableSet(paths);
 	}
 
-	private static void refreshAfterModsLoaded(ZomboidFileSystem fileSystem) {
-		// loadMod changes active files but vanilla does not invalidate the lazy prefix value after every load.
-		fileSystem.resetModFolders();
-		fileSystem.getAllModFolders(new ArrayList<>());
+	public static void refreshAfterModsLoaded(ZomboidFileSystem fileSystem) {
+		// Do not force vanilla's lazy allowed-prefix value here. Its first initialization recursively registers every
+		// mod media directory with DebugFileWatcher, and vanilla intentionally defers that work until it is needed.
 		publishActiveFileSnapshot(fileSystem);
-
-		// Force the lazy vanilla value to be created on the load thread, after the complete mod folder list is
-		// available, rather than in an animation worker. The base directory is always an allowed vanilla prefix.
-		if (fileSystem.base.absoluteFile != null) {
-			fileSystem.validatePrefix(fileSystem.base.absoluteFile.getAbsolutePath());
-		}
 	}
 
-	private static boolean isInvalidPrefixException(IllegalArgumentException exception) {
+	public static boolean isInvalidPrefixException(IllegalArgumentException exception) {
 		String message = exception.getMessage();
 		return message != null && message.startsWith("Invalid prefix found for:");
 	}
 
-	private static boolean isRegisteredActiveFile(String input) {
+	public static boolean isRegisteredActiveFile(String input) {
 		String normalizedInput = normalize(input);
 		if (normalizedInput == null || !isAnimationPath(normalizedInput) || !activeFilePaths.contains(normalizedInput)) {
 			return false;
@@ -202,7 +218,7 @@ public final class Patch_AnimationLoading {
 
 	private static boolean isAnimationPath(String normalizedPath) {
 		String path = normalizedPath.replace('\\', '/');
-		boolean isAnimationDirectory = path.contains("/media/anims/") || path.contains("/media/anims_x/");
+		boolean isAnimationDirectory = path.startsWith("media/anims/") || path.startsWith("media/anims_x/") || path.contains("/media/anims/") || path.contains("/media/anims_x/");
 		boolean isAnimationFormat = path.endsWith(".x") || path.endsWith(".fbx") || path.endsWith(".glb") || path.endsWith(".txt");
 		return isAnimationDirectory && isAnimationFormat;
 	}
