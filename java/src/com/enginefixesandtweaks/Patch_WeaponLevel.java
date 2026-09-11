@@ -20,7 +20,7 @@ public final class Patch_WeaponLevel {
 	private Patch_WeaponLevel() {
 	}
 
-	private static int getWeaponLevel(IsoGameCharacter character, HandWeapon weapon) {
+	public static int getWeaponLevel(IsoGameCharacter character, HandWeapon weapon) {
 		if (character == null || weapon == null) {
 			return 0;
 		}

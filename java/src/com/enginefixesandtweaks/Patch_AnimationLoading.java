@@ -216,14 +216,14 @@ public final class Patch_AnimationLoading {
 		}
 	}
 
-	private static boolean isAnimationPath(String normalizedPath) {
+	public static boolean isAnimationPath(String normalizedPath) {
 		String path = normalizedPath.replace('\\', '/');
 		boolean isAnimationDirectory = path.startsWith("media/anims/") || path.startsWith("media/anims_x/") || path.contains("/media/anims/") || path.contains("/media/anims_x/");
 		boolean isAnimationFormat = path.endsWith(".x") || path.endsWith(".fbx") || path.endsWith(".glb") || path.endsWith(".txt");
 		return isAnimationDirectory && isAnimationFormat;
 	}
 
-	private static String normalize(String path) {
+	public static String normalize(String path) {
 		if (path == null) {
 			return null;
 		}

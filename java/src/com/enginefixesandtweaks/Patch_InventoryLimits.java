@@ -14,8 +14,8 @@ import zombie.inventory.types.InventoryContainer;
  */
 
 public final class Patch_InventoryLimits {
-	private static final int VANILLA_INVENTORY_ITEM_LIMIT = 50;
-	private static final int VANILLA_DEFAULT_CONTAINER_LIMIT = 100;
+	public static final int VANILLA_INVENTORY_ITEM_LIMIT = 50;
+	public static final int VANILLA_DEFAULT_CONTAINER_LIMIT = 100;
 
 	private Patch_InventoryLimits() {
 	}
