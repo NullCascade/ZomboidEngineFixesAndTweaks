@@ -1,10 +1,5 @@
 plugins {
     id 'java'
-    id 'io.github.zed-0xff.zb-gradle-plugin' version '1.0.1'
-}
-
-zbSigning {
-    jarTask = 'jar'
 }
 
 def gameDir = findProperty('gameDir') ?: 'C:/Games/Steam/steamapps/common/ProjectZomboid'
@@ -39,10 +34,7 @@ jar {
 }
 
 tasks.register('packageModJar', Copy) {
-    dependsOn tasks.named('signJarZBS')
-    from(layout.buildDirectory.dir('libs')) {
-        include 'EngineFixesAndTweaks.jar'
-        include 'EngineFixesAndTweaks.jar.zbs'
-    }
+    dependsOn tasks.named('jar')
+    from tasks.named('jar')
     into file("../${pzVersion}/media/java")
 }
