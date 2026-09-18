@@ -1,4 +1,4 @@
-version=1.1
+version=1.2.0
 id=3798245486
 title=Null's Engine Fixes and Tweaks
 description=Personally desired engine fixes and tweaks. Built for Project Zomboid B42.20.4. Not guaranteed to work on other versions.
@@ -10,6 +10,7 @@ description=
 description=[list]
 description=[*] [b]Fixed Weapon Level Calculations[/b]: Fixes a likely bug in weapon level calculations that causes most weapon types to be treated as one level lower. Can be enabled/disabled in sandbox settings.
 description=[*] [b]Fixed Animation Reloading[/b]: Attempts to fix the meatballing issue with the Horses mod, as well as other animation files failing to load in multiplayer sessions.
+description=[*] [b]Fixed Multiplayer Sleep Wakeups[/b]: Prevents aiming/entering combat stance from waking up unintended players in multiplayer.
 description=[/list]
 description=
 description=[h2]Engine Tweaks[/h2]
