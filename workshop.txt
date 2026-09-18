@@ -20,5 +20,5 @@ description=[*] [b]Dehardcoded Inventory Limits[/b]: Use sandbox settings to cha
 description=[/list]
 description=
 description=Source code available on GitHub: NullCascade/ZomboidEngineFixesAndTweaks
-tags=Build 42;WIP
+tags=Build 42;Multiplayer;WIP
 visibility=public
