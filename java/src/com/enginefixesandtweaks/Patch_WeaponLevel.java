@@ -8,8 +8,6 @@ import zombie.inventory.types.HandWeapon;
 import zombie.inventory.types.WeaponType;
 import zombie.scripting.objects.WeaponCategory;
 
-import java.util.concurrent.Callable;
-
 /**
  * Fix the vanilla weapon-level calculation for non-Axe melee weapons.
  *
