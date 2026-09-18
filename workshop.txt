@@ -1,11 +1,22 @@
 version=1.1
 id=3798245486
 title=Null's Engine Fixes and Tweaks
-description=A couple of work-in-progress fixes and tweaks.
+description=Personally desired engine fixes and tweaks. Built for Project Zomboid B42.20.4. Not guaranteed to work on other versions.
 description=
-description=- Dehardcoded inventory limits: Use sandbox settings to change the previously hardcoded limits of 50 and 100.
-description=- Fixed weapon level calculations for non-axes: Fixes a likely bug in weapon level calculations that causes most weapon types to be treated as one level lower. Can be enabled/disabled in sandbox settings.
-description=- Fixed animation loading when reloading lua/connecting to servers: Attempts to fix the meatballing issue with the Horses mod, as well as other animation files failing to load in multiplayer sessions.
+description=This patches the game's code during runtime, using [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url]. It does not directly redistribute or overwrite game files.
+description=
+description=[h2]Engine Bug Fixes[/h2]
+description=
+description=[list]
+description=[*] [b]Fixed Weapon Level Calculations[/b]: Fixes a likely bug in weapon level calculations that causes most weapon types to be treated as one level lower. Can be enabled/disabled in sandbox settings.
+description=[*] [b]Fixed Animation Reloading[/b]: Attempts to fix the meatballing issue with the Horses mod, as well as other animation files failing to load in multiplayer sessions.
+description=[/list]
+description=
+description=[h2]Engine Tweaks[/h2]
+description=
+description=[list]
+description=[*] [b]Dehardcoded Inventory Limits[/b]: Use sandbox settings to change the previously hardcoded limits of 50 and 100.
+description=[/list]
 description=
 description=Source code available on GitHub: NullCascade/ZomboidEngineFixesAndTweaks
 tags=Build 42;WIP
