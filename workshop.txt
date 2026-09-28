@@ -3,7 +3,8 @@ id=3798245486
 title=Null's Engine Fixes and Tweaks
 description=Personally desired engine fixes and tweaks. Built for Project Zomboid B42.21.0. Not guaranteed to work on other versions.
 description=
-description=This patches the game's code during runtime, using [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url]. It does not directly redistribute or overwrite game files.
+description=This patches the game's code during runtime, using [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url]. Note that if ZombieBuddy has not yet updated to B42.21, you will also need [url=
+https://steamcommunity.com/sharedfiles/filedetails/?id=3807686870]this fix[/url]. This mod does not redistribute game files.
 description=
 description=[h2]Engine Bug Fixes[/h2]
 description=
