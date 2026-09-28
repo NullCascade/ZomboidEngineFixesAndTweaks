@@ -1,9 +1,10 @@
 name=Engine Fixes and Tweaks
 id=EngineFixesAndTweaks
 author=NullCascade
-description=A collection of fixes and tweaks to Project Zomboid B42.20.4.
-versionMin=42.20.0
-modversion=1.2.0
+description=A collection of fixes and tweaks to Project Zomboid B42.21.0.
+versionMin=42.21.0
+versionMax=42.21.0
+modversion=1.3.0
 url=https://steamcommunity.com/linkfilter/?u=https://github.com/NullCascade/ZomboidEngineFixesAndTweaks
 require=\ZombieBuddy
 javaJarFile=media/java/EngineFixesAndTweaks.jar

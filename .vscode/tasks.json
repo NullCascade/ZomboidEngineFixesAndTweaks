@@ -39,7 +39,7 @@
       "id": "pzVersion",
       "type": "promptString",
       "description": "Project Zomboid version directory",
-      "default": "42.20"
+      "default": "42.21"
     }
   ]
 }

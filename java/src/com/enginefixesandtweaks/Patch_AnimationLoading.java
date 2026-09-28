@@ -15,9 +15,9 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Keeps ZomboidFileSystem prefix validation safe while mods and animation assets are being reloaded.
  *
- * The game owns activeFileMap and uses a plain HashMap for it. Animation tasks read it indirectly from worker threads
- * while Reset/init/loadMod can mutate it on the game thread. This patch copies the active absolute paths while
- * lifecycle operations are serialized, and validation only reads the immutable copy.
+ * The game owns activeFileMap, a non-concurrent Map backed by a HashMap. Animation tasks read it indirectly from
+ * worker threads while Reset/init/loadMod can mutate it on the game thread. This patch copies the active absolute
+ * paths while lifecycle operations are serialized, and validation only reads the immutable copy.
  */
 public final class Patch_AnimationLoading {
 	/*
@@ -29,23 +29,6 @@ public final class Patch_AnimationLoading {
 	public static volatile Set<String> activeFilePaths = Set.of();
 
 	private Patch_AnimationLoading() {
-	}
-
-	/**
-	 * Serialize the vanilla folder scan. Without this, two lazy-prefix
-	 * evaluations can observe modFolders while another call is still filling it.
-	 */
-	@Patch(className = "zombie.ZomboidFileSystem", methodName = "getAllModFolders")
-	public static final class Patch_ZomboidFileSystem_getAllModFolders {
-		@Patch.OnEnter
-		public static void enter() {
-			FILE_SYSTEM_LOCK.lock();
-		}
-
-		@Patch.OnExit(onThrowable = Throwable.class)
-		public static void exit() {
-			FILE_SYSTEM_LOCK.unlock();
-		}
 	}
 
 	/**
@@ -119,7 +102,7 @@ public final class Patch_AnimationLoading {
 
 	/**
 	 * Rebuild the vanilla lazy-prefix input after the complete loadMods pass. The advice matches both loadMods
-	 * overloads; the depth guard avoids doing this twice when the String overload calls the ArrayList one.
+	 * overloads; the depth guard avoids doing this twice when the String overload calls the List overload.
 	 */
 	@Patch(className = "zombie.ZomboidFileSystem", methodName = "loadMods")
 	public static final class Patch_ZomboidFileSystem_loadMods {
@@ -145,8 +128,8 @@ public final class Patch_AnimationLoading {
 	}
 
 	/**
-	 * Keep vanilla's reset operation serialized with validation and folder scans. The vanilla method resets
-	 * allowedPrefixes itself.
+	 * Serialize mod-folder and allowed-prefix invalidation with the other patched filesystem lifecycle operations.
+	 * The vanilla method resets allowedPrefixes itself.
 	 */
 	@Patch(className = "zombie.ZomboidFileSystem", methodName = "resetModFolders")
 	public static final class Patch_ZomboidFileSystem_resetModFolders {
